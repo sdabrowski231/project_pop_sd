@@ -2,12 +2,12 @@ from tkinter import *
 
 import tkintermapview
 
-pharmacies: list = []
+camers: list = []
 clients:list=[]
 workers:list=[]
 
 
-class Pharmacy:
+class Camers:
     def __init__(self, pharmacy_name, pharmacy_location, ):
         self.pharmacy_name = pharmacy_name
 
@@ -28,6 +28,48 @@ class Pharmacy:
         print(latitude)
         return [latitude, longitude]
 
+class Client:
+    def _init_(self,client_name,client_illness,client_location1,client_location2):
+        self.client_name =client_name
+        self.client_illness=client_illness
+        self.client_location1=client_location1
+        self.client_location2=client_location2
+        self.coordinates=self.get_coordinates()
+        # self.marker=map_widget.set_marker(self.coordinates[0],self.coordinates[1])
+
+    def get_coordinates(self) -> list:
+        import requests
+        from bs4 import BeautifulSoup
+        url = f"https://pl.wikipedia.org/wiki/{self.client_location2}"
+        response = requests.get(url).text
+        response_html = BeautifulSoup(response, "html.parser")
+        longitude = float(response_html.select(".longitude")[1].text.replace(",", "."))
+        latitude = float(response_html.select(".latitude")[1].text.replace(",", "."))
+        print(longitude)
+        print(latitude)
+        return [latitude, longitude]
+
+
+class Workers:
+    def _init_(self,worker_name,worker_pharmacy,worker_location):
+        self.worker_name =worker_name
+        self.worker_pharmacy=worker_pharmacy
+        self.worker_location=worker_location
+
+        self.coordinates=self.get_coordinates()
+        # self.marker=map_widget.set_marker(self.coordinates[0],self.coordinates[1])
+
+    def get_coordinates(self) -> list:
+        import requests
+        from bs4 import BeautifulSoup
+        url = f"https://pl.wikipedia.org/wiki/{self.worker_location}"
+        response = requests.get(url).text
+        response_html = BeautifulSoup(response, "html.parser")
+        longitude = float(response_html.select(".longitude")[1].text.replace(",", "."))
+        latitude = float(response_html.select(".latitude")[1].text.replace(",", "."))
+        print(longitude)
+        print(latitude)
+        return [latitude, longitude]
 
 
 
