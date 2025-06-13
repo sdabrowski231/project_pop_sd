@@ -68,7 +68,7 @@ def update_user(i):
     entry_name.focus()
 
 
-    button_doda_obiekt.config(text="Dodaj obiekty", command=add_user)
+    button_doda_obiekt.config(text="Dodaj obiekt", command=add_user)
     show_users()
 
 root = Tk()
