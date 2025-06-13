@@ -127,7 +127,7 @@ button_edytuj_obiekt_klient.grid(row=2,column=8)
 # ramka_formularz
 label_formularz=Label(ramka_formularz, text="Formularz")
 label_formularz.grid(row=0, column=0, columnspan=2)
-label_name=Label(ramka_formularz, text="Edytuj liste kamer:")
+label_name=Label(ramka_formularz, text="Edytuj listę kamer:")
 label_name.grid(row=1, column=0, sticky=W)
 label_surname=Label(ramka_formularz, text="Edytuj liste pracowników:")
 label_surname.grid(row=2, column=0,sticky=W)
