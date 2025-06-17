@@ -9,6 +9,7 @@ workers:list=[]
 data_camers=[]
 data_workers=[]
 data_technicians=[]
+camera_markers = []
 
 class Camers:
     def __init__(self, camer_name, camer_location):
@@ -72,9 +73,11 @@ def dodaj_wszystko():
     camers.append(cam)
 
     coordinates = cam.get_coordinates()
-    if coordinates != [0.0, 0.0]:  
-        map_widget.set_marker(coordinates[0], coordinates[1], text=text_camers)
-        map_widget.set_position(coordinates[0], coordinates[1])
+    if coordinates != [0.0, 0.0]:
+        marker = map_widget.set_marker(coordinates[0], coordinates[1], text=text_camers)
+        camera_markers.append(marker)
+    else:
+        camera_markers.append(None)
     pozycja = listbox_lista_kamer.size() + 1
     wiersz = f"{pozycja}. {text_camers} ({text_id})"
     listbox_lista_kamer.insert(END, wiersz)
@@ -106,7 +109,16 @@ def remove_camers():
     selection = listbox_lista_kamer.curselection()
     if selection:
         i = selection[0]
+
+        # Usuń marker jeśli istnieje
+        marker = camera_markers.pop(i)
+        if marker:
+            marker.delete()
+
+        # Usuń dane kamery
         data_camers.pop(i)
+        camers.pop(i)
+
         listbox_lista_kamer.delete(0, END)
         for idx, (nazwa, id_) in enumerate(data_camers, start=1):
             listbox_lista_kamer.insert(END, f"{idx}. {nazwa}  {id_}")
@@ -131,11 +143,21 @@ def update_camers():
     new_id = entry_name_id.get()
 
     if new_name.strip():
+        # Aktualizacja danych
         data_camers[i] = (new_name, new_id)
+        camers[i].camer_name = new_name
 
+        # Aktualizacja markera na mapie (tekst)
+        marker = camera_markers[i]
+        if marker:
+            marker.set_text(new_name)
+
+        # Odświeżenie listy
         listbox_lista_kamer.delete(0, END)
         for idx, (nazwa, id_) in enumerate(data_camers, start=1):
             listbox_lista_kamer.insert(END, f"{idx}. {nazwa}  {id_}")
+
+        # Wyczyść formularz
         entry_name_camers.delete(0, END)
         entry_name_id.delete(0, END)
         button_dodaj_obiekt.config(text="Dodaj", command=dodaj_wszystko)
