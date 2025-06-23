@@ -86,7 +86,6 @@ def dodaj_wszystko():
     entry_name_id.delete(0, END)
     entry_camera_location.delete(0, END)
 
-
     worker = Workers(text_workers, text_workers_surname, "-")
     workers.append(worker)
     pozycja = listbox_lista_pracownikow.size() + 1
@@ -96,7 +95,6 @@ def dodaj_wszystko():
     entry_name_workers.delete(0, END)
     entry_surname_workers.delete(0, END)
 
-    # Dodanie konserwatora
     technician_obj = Technician(text_technical, text_technicial_surname, "-")
     technicians.append(technician_obj)
     pozycja = listbox_lista_konserwatorow.size() + 1
@@ -110,12 +108,10 @@ def remove_camers():
     if selection:
         i = selection[0]
 
-        # Usuń marker jeśli istnieje
         marker = camera_markers.pop(i)
         if marker:
             marker.delete()
 
-        # Usuń dane kamery
         data_camers.pop(i)
         camers.pop(i)
 
@@ -128,39 +124,57 @@ def edit_camers():
     if selection:
         i = selection[0]
         name, id_ = data_camers[i]
+        location = camers[i].camer_location
 
         entry_name_camers.delete(0, END)
         entry_name_camers.insert(0, name)
 
         entry_name_id.delete(0, END)
         entry_name_id.insert(0, id_)
+
+        entry_camera_location.delete(0, END)
+        entry_camera_location.insert(0, location)
+
         edytowany_index.set(i)
         button_dodaj_obiekt.config(text="Zapisz", command=update_camers)
 
 def update_camers():
     i = edytowany_index.get()
-    new_name = entry_name_camers.get()
-    new_id = entry_name_id.get()
+    new_name = entry_name_camers.get().strip()
+    new_id = entry_name_id.get().strip()
+    new_location = entry_camera_location.get().strip()
 
-    if new_name.strip():
-        # Aktualizacja danych
+    if new_name and new_location:
+        # Aktualizacja danych tekstowych
         data_camers[i] = (new_name, new_id)
         camers[i].camer_name = new_name
+        camers[i].camer_location = new_location
 
-        # Aktualizacja markera na mapie (tekst)
-        marker = camera_markers[i]
-        if marker:
-            marker.set_text(new_name)
+        # Usunięcie starego markera
+        old_marker = camera_markers[i]
+        if old_marker:
+            old_marker.delete()
 
-        # Odświeżenie listy
+        # Nowe współrzędne
+        coordinates = camers[i].get_coordinates()
+        if coordinates != [0.0, 0.0]:
+            new_marker = map_widget.set_marker(coordinates[0], coordinates[1], text=new_name)
+            camera_markers[i] = new_marker
+        else:
+            print("Nie udało się pobrać współrzędnych nowej lokalizacji.")
+            camera_markers[i] = None
+
+        # Odświeżenie listy kamer
         listbox_lista_kamer.delete(0, END)
         for idx, (nazwa, id_) in enumerate(data_camers, start=1):
             listbox_lista_kamer.insert(END, f"{idx}. {nazwa}  {id_}")
 
-        # Wyczyść formularz
+        # Reset formularza
         entry_name_camers.delete(0, END)
         entry_name_id.delete(0, END)
-        button_dodaj_obiekt.config(text="Dodaj", command=dodaj_wszystko)
+        entry_camera_location.delete(0, END)
+        button_dodaj_obiekt.config(text="Zapisz", command=dodaj_wszystko)
+
 
 def show_camers():
 
@@ -234,6 +248,7 @@ def show_workers():
         name, surname = data_workers[i]
         label_szczegoly_worker_name_wartosc.config(text=name)
         label_szczegoly_worker_surname_wartosc.config(text=surname)
+
 #ramka_lista_PRACOWNIKÓW
 label_lista_obiektow_klient=Label(ramka_lista_obiektow, text="Lista pracowników")
 label_lista_obiektow_klient.grid(row=0, column=3,columnspan=2)
@@ -317,15 +332,15 @@ label_camera_coords.grid(row=1, column=0, sticky=W)
 label_camera_name = Label(ramka_formularz, text="Nazwa kamery:")
 label_camera_name.grid(row=2, column=0, sticky=W)
 label_id=Label(ramka_formularz, text="Numer seryjny")
-label_id.grid(row=3, column=0, sticky=W)
+label_id.grid(row=3, column=0)
 label_name_workers=Label(ramka_formularz, text="Imie pracownika:")
-label_name_workers.grid(row=4, column=0,sticky=W)
+label_name_workers.grid(row=4, column=0)
 label_surname_workers=Label(ramka_formularz, text="Nazwisko Pracownika:")
-label_surname_workers.grid(row=5, column=0,sticky=W)
+label_surname_workers.grid(row=5, column=0)
 label_name_technicial=Label(ramka_formularz, text="Imie konserwatora:")
-label_name_technicial.grid(row=6, column=0,sticky=W)
+label_name_technicial.grid(row=6, column=0)
 label_surname_technicial=Label(ramka_formularz, text="Nazwisko konserwatora:")
-label_surname_technicial.grid(row=7, column=0,sticky=W)
+label_surname_technicial.grid(row=7, column=0)
 button_dodaj_obiekt = Button(ramka_formularz, text="Dodaj", command=dodaj_wszystko)
 button_dodaj_obiekt.grid(row=8, column=0, columnspan=2)
 
@@ -387,7 +402,7 @@ label_szczegoly_tech_surname_wartosc = Label(ramka_szczegoly_obiektow, text="...
 label_szczegoly_tech_surname_wartosc.grid(row=0, column=11)
 
 # ramka_mapa
-map_widget = tkintermapview.TkinterMapView(ramka_mapa, width=1200, height=500, corner_radius=5)
+map_widget = tkintermapview.TkinterMapView(ramka_mapa, width=1200, height=500, corner_radius=6)
 map_widget.grid(row=0, column=0, columnspan=2)
 map_widget.set_position(52.23,21.0)
 map_widget.set_zoom(6)
